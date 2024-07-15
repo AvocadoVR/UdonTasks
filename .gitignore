@@ -1,0 +1,6 @@
+/*
+!/Packages
+/Packages/*
+!.gitignore
+!README.md
+!/Packages/com.avocado.udontasks
