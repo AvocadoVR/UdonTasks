@@ -1,7 +1,7 @@
 {
   "name": "com.avocado.udontasks",
   "displayName": "UdonTasks",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "gitDependencies": {},
   "vpmDependencies": {
     "com.vrchat.worlds": "3.6.1"

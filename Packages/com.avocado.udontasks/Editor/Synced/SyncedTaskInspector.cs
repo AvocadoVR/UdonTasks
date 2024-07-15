@@ -337,6 +337,7 @@ namespace UdonTasks.Editor.Synced
                 {
                     if (condition.i >= 0 && condition.i < length)
                     {
+                        inspector.repeatUntilMet[condition.i] = condition.repeat;
                         inspector.conditionMethods[condition.i] = condition.conditionMethod;
                         inspector.callbacks[condition.i] = condition.callback;
                         inspector.function[condition.i] = condition.taskFunc;
