@@ -5,9 +5,9 @@
 |---|---|---|
 | StartTask() | This starts the task. |  |
 | StopTask() | This stops the task. |  |
-| Continue() | Conditional: If your task is marked as Manual Confirmation. You will need to use this after your logic in your callback. | If you want something to execute and make sure the data has time to update before running the task risking issues. |
-| SetCondition(bool Condition) | Conditional: Wether you mark it as Repeat til Fulfillment. This will be needed to tell the Task how to proceed.<br><br>True: It met the condition.<br><br>False: It didn't meet the condition. | If you have something that shouldn't execute unless these conditions are met. |
-| WaitForSecondsCallback() | DO NOT USE! This function is for task script only. |  |
+| Continue() | Conditional: If your task is marked as Manual Confirmation. You will need to use this after your logic in your callback. | If you want something to execute a task and make sure the data has time to update. |
+| SetCondition(bool Condition) | Conditional: Whether you mark it as Repeat til Fulfillment or not. This will be needed to tell the Task how to proceed.<br><br>True: It met the condition.<br><br>False: It didn't meet the condition. | If you have a task that shouldn't execute unless these conditions are met.  |
+| WaitForSecondsCallback() | DO NOT USE! This function is for the task script only. |  |
 
 <br>
 

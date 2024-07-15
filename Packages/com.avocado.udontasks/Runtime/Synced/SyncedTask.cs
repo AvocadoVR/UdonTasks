@@ -60,6 +60,7 @@ namespace UdonTasks.Runtime.Synced
         public void StartTask()
         {
             isTaskRunning = true;
+            RequestSerialization();
             TaskFunc();
         }
 
@@ -67,6 +68,8 @@ namespace UdonTasks.Runtime.Synced
         {
             isTaskRunning = false;
             currentState = -1;
+            RequestSerialization();
+
             ConditionMet = false;
         }
 
@@ -79,6 +82,7 @@ namespace UdonTasks.Runtime.Synced
             }
 
             currentState++;
+            RequestSerialization();
 
             switch (function[currentState])
             {
