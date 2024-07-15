@@ -1,5 +1,8 @@
 # UdonTasks
 
+# Support
+If you would like to support me & my work. Consider supporting me on [Patreon](https://www.patreon.com/AvocadoVR)
+
 ## Local Task & Synced Task Methods
 | Methods | Description | Usage |
 |---|---|---|
