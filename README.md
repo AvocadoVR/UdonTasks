@@ -15,7 +15,7 @@
 | Variable           | Type             | Description                                                                  | Access Type  |
 |--------------------|------------------|------------------------------------------------------------------------------|--------------|
 | ConditionMet       | bool             | Used when there is a Conditional function.                                   | Internal     |
-| isTaskRunning      | bool             | Returns the state of the task.                                               | **External** |
+| isTaskRunning      | bool             | Returns the state of the task.                                               | **Internal/External** |
 | currentState       | int              | Which function its on.                                                       | Internal     |
 | stateCount         | int              | Total amount of functions.                                                   | Internal     |
 | methodNames        | string[]         | Holds all the task method names.                                             | Internal     |
