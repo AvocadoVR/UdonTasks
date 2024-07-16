@@ -5,7 +5,7 @@ If you would like to support me & my work. Consider supporting me on [Patreon](h
 
 ## Local Task & Synced Task
 
-[Local Task Example]() | [Synced Task Example]()
+[Local Task Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/LocalTaskExample.cs) | [Synced Task Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/SyncedTaskExample.cs)
 
 >| Methods | Description | Usage |
 >|---|---|---|
@@ -21,13 +21,13 @@ If you would like to support me & my work. Consider supporting me on [Patreon](h
 >|--------------------|------------------|---------------------------------------------------------------------------|-------------|
 >| isConditionMet     | bool             | Used when there is a Conditional function.                                | private     |
 >| isTaskRunning      | bool             | Returns the state of the task.                                            | public      |
->| currentTask        | int              | Which task its currently on.                                              | private     |
->| taskCount          | int              | How many tasks in total.                                                  | private     |
+>| currentTask        | int              | Which task is it currently on.                                              | private     |
+>| taskCount          | int              | How many tasks are in total.                                                  | private     |
 >| functions          | TypeOfFunction[] | Holds the steps of your task layout.                                      | public      |
 >| methodNames        | string[]         | Holds names of the methods.                                               | public      |
 >| callbacks          | UdonBehaviour[]  | Holds all the UdonBehaviours.                                             | public      |
 >| manualConfirmation | bool[]           | Used for tasks that want to be manually confirmed.                        | public      |
->| repeatUntilMet     | bool[]           | Used for Condition task that want to repeat until it meets the Condition. | public      |
+>| repeatUntilMet     | bool[]           | Used for Condition task that wants to repeat until it meets the Condition. | public      |
 >| waitForSeconds     | int[]            | Holds all WaitForSeconds integers.                                        | public      |
 
 <br>
@@ -36,7 +36,7 @@ If you would like to support me & my work. Consider supporting me on [Patreon](h
 
 ## Local Task & Synced Task Base
 
-[Local Task Base Example]() | [Synced Task Base Example]()
+[Local Task Base Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/Base/LocalTaskBaseExample.cs) | [Synced Task Base Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/Base/SyncedTaskBaseExample.cs)
 
 >| Methods                  | Description                                                       |
 >|--------------------------|-------------------------------------------------------------------|
@@ -44,16 +44,16 @@ If you would like to support me & my work. Consider supporting me on [Patreon](h
 >| StopTask()               | Stops the task.                                                   |
 >| Task()                   | This is for your logic.                                           |
 >| Continue()               | This will allow the task to continue after triggering your logic. |
->| WaitForSeconds()         | Wait a period of time before trigger your next task.              |
+>| WaitForSeconds()         | Wait a period of time before triggering your next task.              |
 >| WaitForSecondsCallback() | DO NOT USE! This function is for the task script only.            |
 
 <br>
 
 >| Variable      | Type | Description                                               | Access Type |
 >|---------------|------|-----------------------------------------------------------|-------------|
->| currentTask   | int  | Shows the current task its on.                            | public      |
+>| currentTask   | int  | Shows the current task it's on.                            | public      |
 >| taskAmount    | int  | Show how many task in total todo.                         | public      |
->| blockContinue | bool | Internal Logic to prevent WaitForSeconds for not working. | private     |
+>| blockContinue | bool | Internal Logic to prevent WaitForSeconds from not working. | private     |
 >| isTaskRunning | bool | Returns the state of the task.                            | public      |
 
 <br>
@@ -62,11 +62,11 @@ If you would like to support me & my work. Consider supporting me on [Patreon](h
 
 ## Local Timer & Synced Timer Task
 
-[Local Timer Task Example]() | [Synced Timer Task Example]()
+[Local Timer Task Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/TimerTask/LocalTimerTaskExample.cs) | [Synced Timer Task Example](https://github.com/AvocadoVR/UdonTasks/blob/main/Packages/com.avocado.udontasks/Runtime/Examples/TimerTask/SyncedTimerTaskExample.cs)
 
 >| Method                       | Description                                           |
 >|------------------------------|-------------------------------------------------------|
->| SetTimer(int _min, int _sec) | Used to set the timer. Use before starting the timer! |
+>| SetTimer(int _min, int _sec) | Used to set the timer. Use it before starting the timer! |
 >| StartTimer()                 | Starts the timer.                                     |
 >| StopTimer()                  | Stops the timer.                                      |
 >| Timer()                      | Timer Logic.                                          |
