@@ -1,7 +1,8 @@
 # UdonTasks
 
-# Support
-If you would like to support me & my work. Consider supporting me on [Patreon](https://www.patreon.com/AvocadoVR)
+# Support My Work on Patreon
+
+If you would like to support me and my work, consider becoming a patron on [Patreon](https://www.patreon.com/AvocadoVR). Your support helps me create more content and improve my projects!
 
 ## Local Task & Synced Task
 
