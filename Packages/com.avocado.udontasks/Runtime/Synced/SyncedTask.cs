@@ -9,43 +9,38 @@ namespace UdonTasks.Runtime.Synced
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class SyncedTask : UdonSharpBehaviour
     {
-        private bool ConditionMet = false;
+        private bool isConditionMet = false;
 
-        [UdonSynced] public bool isTaskRunning = false;
+        [UdonSynced] private bool IsTaskRunning = false;
 
         #region Set Code
-        public bool IsTaskRunning()
-        {
-            return isTaskRunning;
-        }
+        public bool isTaskRunning => IsTaskRunning;
 
         public void SetCondition(bool Condition)
         {
-            if (!repeatUntilMet[currentState])
+            if (!repeatUntilMet[currentTask])
             {
-                ConditionMet = Condition;
+                isConditionMet = Condition;
                 ConditonalBreak();
             }
             else
             {
-                ConditionMet = Condition;
+                isConditionMet = Condition;
                 ConditonalRepeat();
             }
         }
         #endregion
 
-        [UdonSynced] private int currentState = -1;
-        private int stateCount;
+        [UdonSynced] private int currentTask = -1;
+        private int taskCount;
+
+        public TypeOfFunction[] functions;
 
         public string[] methodNames;
-        public bool[] manualConfirmation;
-        public UdonBehaviour[] methodBehaviors;
-
-        public TypeOfFunction[] function;
-
-        public string[] conditionMethods;
-        public bool[] repeatUntilMet;
         public UdonBehaviour[] callbacks;
+
+        public bool[] manualConfirmation;
+        public bool[] repeatUntilMet;
 
         public int[] waitForSeconds;
 
@@ -54,23 +49,23 @@ namespace UdonTasks.Runtime.Synced
         void Start()
         {
             player = Networking.LocalPlayer;
-            stateCount = function.Length - 1;
+            taskCount = functions.Length - 1;
         }
 
         public void StartTask()
         {
-            isTaskRunning = true;
+            IsTaskRunning = true;
             RequestSerialization();
             TaskFunc();
         }
 
         public void StopTask()
         {
-            isTaskRunning = false;
-            currentState = -1;
+            IsTaskRunning = false;
+            currentTask = -1;
             RequestSerialization();
 
-            ConditionMet = false;
+            isConditionMet = false;
         }
 
         private void TaskFunc()
@@ -81,55 +76,52 @@ namespace UdonTasks.Runtime.Synced
                 return;
             }
 
-            currentState++;
+            currentTask++;
             RequestSerialization();
 
-            switch (function[currentState])
+            var methodName = methodNames[currentTask];
+            var callback = callbacks[currentTask];
+            var taskFunction = functions[currentTask];
+
+            if (callback == null || string.IsNullOrEmpty(methodName) || string.IsNullOrWhiteSpace(methodName))
+            {
+                StopTask();
+                return;
+            }
+            else if (taskFunction == TypeOfFunction.WaitForSeconds && currentTask == taskCount)
+            {
+                StopTask();
+                return;
+            }
+
+            switch (taskFunction)
             {
                 case TypeOfFunction.Task:
-                    var behaviour = methodBehaviors[currentState];
-
-                    if (behaviour == null || string.IsNullOrEmpty(methodNames[currentState]) || string.IsNullOrWhiteSpace(methodNames[currentState]))
-                    {
-                        StopTask();
-                        return;
-                    }
-
-                    if (!Networking.IsOwner(behaviour.gameObject)) Networking.SetOwner(player, behaviour.gameObject);
-
-                    behaviour.SendCustomEvent(methodNames[currentState]);
-
-                    if (manualConfirmation[currentState]) return;
-                    break;
-                case TypeOfFunction.WaitForSeconds:
-                    if (currentState == stateCount)
-                    {
-                        StopTask();
-                        return;
-                    }
-
-                    SendCustomEventDelayedSeconds(nameof(WaitForSecondsCallback), waitForSeconds[currentState]);
-                    return;
-                case TypeOfFunction.Condition:
-                    var callback = callbacks[currentState];
-                    if (callback == null || string.IsNullOrEmpty(conditionMethods[currentState]) || string.IsNullOrWhiteSpace(conditionMethods[currentState]))
-                    {
-                        StopTask();
-                        return;
-                    }
 
                     if (!Networking.IsOwner(callback.gameObject)) Networking.SetOwner(player, callback.gameObject);
 
-                    callbacks[currentState].SendCustomEvent(conditionMethods[currentState]);
+                    callback.SendCustomEvent(methodName);
+
+                    if (manualConfirmation[currentTask]) return;
+                    break;
+                case TypeOfFunction.WaitForSeconds:
+
+                    SendCustomEventDelayedSeconds(nameof(WaitForSecondsCallback), waitForSeconds[currentTask]);
+                    return;
+                case TypeOfFunction.Condition:
+
+                    if (!Networking.IsOwner(callback.gameObject)) Networking.SetOwner(player, callback.gameObject);
+
+                    callback.SendCustomEvent(methodName);
                     return;
             }
 
 
-            if (currentState < stateCount)
+            if (currentTask < taskCount)
             {
                 TaskFunc();
             }
-            else if (currentState == stateCount)
+            else if (currentTask == taskCount)
             {
                 StopTask();
             }
@@ -137,7 +129,7 @@ namespace UdonTasks.Runtime.Synced
 
         public void Continue()
         {
-            if (!manualConfirmation[currentState] || currentState == stateCount || !isTaskRunning)
+            if (!manualConfirmation[currentTask] || currentTask == taskCount || !isTaskRunning)
             {
                 StopTask();
                 return;
@@ -149,7 +141,7 @@ namespace UdonTasks.Runtime.Synced
 
         private void ConditonalBreak()
         {
-            if (ConditionMet || currentState == stateCount || function[currentState] != TypeOfFunction.Condition || !isTaskRunning) // Prevents people from causing errors.
+            if (isConditionMet || currentTask == taskCount || functions[currentTask] != TypeOfFunction.Condition || !isTaskRunning) // Prevents people from causing errors.
             {
                 StopTask();
                 return;
@@ -160,18 +152,18 @@ namespace UdonTasks.Runtime.Synced
 
         private void ConditonalRepeat()
         {
-            if (currentState == stateCount || function[currentState] != TypeOfFunction.Condition || !isTaskRunning)
+            if (currentTask == taskCount || functions[currentTask] != TypeOfFunction.Condition || !isTaskRunning)
             {
                 StopTask();
                 return;
             }
 
-            if (!ConditionMet)
+            if (!isConditionMet)
             {
-                if (!Networking.IsOwner(callbacks[currentState].gameObject)) Networking.SetOwner(player, callbacks[currentState].gameObject);
-                callbacks[currentState].SendCustomEvent(conditionMethods[currentState]);
+                if (!Networking.IsOwner(callbacks[currentTask].gameObject)) Networking.SetOwner(player, callbacks[currentTask].gameObject);
+                callbacks[currentTask].SendCustomEvent(methodNames[currentTask]);
             }
-            else if (ConditionMet)
+            else if (isConditionMet)
             {
                 TaskFunc();
             }
@@ -179,7 +171,7 @@ namespace UdonTasks.Runtime.Synced
 
         public void WaitForSecondsCallback()
         {
-            if (!isTaskRunning || function[currentState] != TypeOfFunction.WaitForSeconds) return;
+            if (!isTaskRunning || functions[currentTask] != TypeOfFunction.WaitForSeconds) return;
 
             TaskFunc();
         }
@@ -187,7 +179,7 @@ namespace UdonTasks.Runtime.Synced
 
         public override void OnOwnershipTransferred(VRCPlayerApi _player)
         {
-            stateCount = function.Length - 1;
+            taskCount = functions.Length - 1;
         }
     }
 }

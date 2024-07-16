@@ -10,43 +10,41 @@ namespace UdonTasks.Runtime.Local
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class LocalTask : UdonSharpBehaviour
     {
-        private bool ConditionMet = false;
+        private bool isConditionMet = false;
         public bool isTaskRunning { get; private set; } = false;
 
         #region Set Code
         public void SetCondition(bool Condition)
         {
-            if (!repeatUntilMet[currentState])
+            if (!repeatUntilMet[currentTask])
             {
-                ConditionMet = Condition;
+                isConditionMet = Condition;
                 ConditonalBreak();
             }
             else
             {
-                ConditionMet = Condition;
+                isConditionMet = Condition;
                 ConditonalRepeat();
             }
         }
         #endregion
 
-        private int currentState = -1;
-        private int stateCount;
+        private int currentTask = -1;
+        private int taskCount;
+
+        public TypeOfFunction[] functions;
 
         public string[] methodNames;
-        public bool[] manualConfirmation;
-        public UdonBehaviour[] methodBehaviors;
-
-        public TypeOfFunction[] function;
-
-        public string[] conditionMethods;
-        public bool[] repeatUntilMet;
         public UdonBehaviour[] callbacks;
+
+        public bool[] manualConfirmation;
+        public bool[] repeatUntilMet;
 
         public int[] waitForSeconds;
 
         void Start()
         {
-            stateCount = function.Length - 1;
+            taskCount = functions.Length - 1;
         }
 
         public void StartTask()
@@ -58,55 +56,54 @@ namespace UdonTasks.Runtime.Local
         public void StopTask()
         {
             isTaskRunning = false;
-            currentState = -1;
-            ConditionMet = false;
+            currentTask = -1;
+            isConditionMet = false;
         }
 
         private void TaskFunc()
         {
             if (!isTaskRunning) return;
 
-            currentState++;
+            currentTask++;
 
-            switch (function[currentState])
+            var methodName = methodNames[currentTask];
+            var callback = callbacks[currentTask];
+            var taskFunction = functions[currentTask];
+
+            if (callback == null || string.IsNullOrEmpty(methodName) || string.IsNullOrWhiteSpace(methodName))
+            {
+                StopTask();
+                return;
+            }
+            else if (taskFunction == TypeOfFunction.WaitForSeconds && currentTask == taskCount)
+            {
+                StopTask();
+                return;
+            }
+
+            switch (taskFunction)
             {
                 case TypeOfFunction.Task:
-                    if (methodBehaviors[currentState] == null || string.IsNullOrEmpty(methodNames[currentState]) || string.IsNullOrWhiteSpace(methodNames[currentState]))
-                    {
-                        StopTask();
-                        return;
-                    }
+                    callback.SendCustomEvent(methodNames[currentTask]);
 
-                    methodBehaviors[currentState].SendCustomEvent(methodNames[currentState]);
-
-                    if (manualConfirmation[currentState]) return;
+                    if (manualConfirmation[currentTask]) return;
                     break;
                 case TypeOfFunction.WaitForSeconds:
-                    if (currentState == stateCount)
-                    {
-                        StopTask();
-                        return;
-                    }
 
-                    SendCustomEventDelayedSeconds(nameof(WaitForSecondsCallback), waitForSeconds[currentState]);
+                    SendCustomEventDelayedSeconds(nameof(WaitForSecondsCallback), waitForSeconds[currentTask]);
                     return;
                 case TypeOfFunction.Condition:
-                    if (callbacks[currentState] == null || string.IsNullOrEmpty(conditionMethods[currentState]) || string.IsNullOrWhiteSpace(conditionMethods[currentState]))
-                    {
-                        StopTask();
-                        return;
-                    }
 
-                    callbacks[currentState].SendCustomEvent(conditionMethods[currentState]);
+                    callback.SendCustomEvent(methodName);
                     return;
             }
 
 
-            if (currentState < stateCount)
+            if (currentTask < taskCount)
             {
                 TaskFunc();
             }
-            else if (currentState == stateCount)
+            else if (currentTask == taskCount)
             {
                 StopTask();
             }
@@ -114,7 +111,7 @@ namespace UdonTasks.Runtime.Local
 
         public void Continue()
         {
-            if (!manualConfirmation[currentState] || currentState == stateCount || !isTaskRunning)
+            if (!manualConfirmation[currentTask] || currentTask == taskCount || !isTaskRunning)
             {
                 StopTask();
                 return;
@@ -126,7 +123,7 @@ namespace UdonTasks.Runtime.Local
 
         private void ConditonalBreak()
         {
-            if (ConditionMet || currentState == stateCount || function[currentState] != TypeOfFunction.Condition || !isTaskRunning) // Prevents people from causing errors.
+            if (isConditionMet || currentTask == taskCount || functions[currentTask] != TypeOfFunction.Condition || !isTaskRunning) // Prevents people from causing errors.
             {
                 StopTask();
                 return;
@@ -137,17 +134,17 @@ namespace UdonTasks.Runtime.Local
 
         private void ConditonalRepeat()
         {
-            if (currentState == stateCount || function[currentState] != TypeOfFunction.Condition || !isTaskRunning)
+            if (currentTask == taskCount || functions[currentTask] != TypeOfFunction.Condition || !isTaskRunning)
             {
                 StopTask();
                 return;
             }
 
-            if (!ConditionMet)
+            if (!isConditionMet)
             {
-                callbacks[currentState].SendCustomEvent(conditionMethods[currentState]);
+                callbacks[currentTask].SendCustomEvent(methodNames[currentTask]);
             }
-            else if (ConditionMet)
+            else if (isConditionMet)
             {
                 TaskFunc();
             }
@@ -157,7 +154,7 @@ namespace UdonTasks.Runtime.Local
 
         public void WaitForSecondsCallback()
         {
-            if (!isTaskRunning || function[currentState] != TypeOfFunction.WaitForSeconds) return;
+            if (!isTaskRunning || functions[currentTask] != TypeOfFunction.WaitForSeconds) return;
 
             TaskFunc();
         }

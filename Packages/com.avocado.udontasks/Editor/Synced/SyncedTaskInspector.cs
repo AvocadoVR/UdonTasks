@@ -96,11 +96,11 @@ namespace UdonTasks.Editor.Synced
                     {
                         Condition condition = element as Condition;
 
-                        if (condition.conditionMethod == "" || string.IsNullOrWhiteSpace(condition.conditionMethod))
+                        if (condition.methodName == "" || string.IsNullOrWhiteSpace(condition.methodName))
                         {
                             elementTypeLabel = "Condition";
                         }
-                        else elementTypeLabel = $"Condition - {condition.conditionMethod}";
+                        else elementTypeLabel = $"Condition - {condition.methodName}";
                     }
 
                     EditorGUI.LabelField(new Rect(rect.x + foldoutSize - 8f, rect.y, rect.width - foldoutWidth, lineHeight), elementTypeLabel, EditorStyles.boldLabel);
@@ -120,7 +120,7 @@ namespace UdonTasks.Editor.Synced
                             rect.y += lineHeight + padding;
                             task.methodName = EditorGUI.TextField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Method", task.methodName);
                             rect.y += lineHeight + padding;
-                            task.methodBehavior = (UdonBehaviour)EditorGUI.ObjectField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Script", task.methodBehavior, typeof(UdonBehaviour), true);
+                            task.callback = (UdonBehaviour)EditorGUI.ObjectField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Script", task.callback, typeof(UdonBehaviour), true);
                         }
                         else if (element is Condition)
                         {
@@ -128,7 +128,7 @@ namespace UdonTasks.Editor.Synced
                             condition.i = index;
                             condition.repeat = EditorGUI.Toggle(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Repeat Until Fulfillment", condition.repeat);
                             rect.y += lineHeight + padding;
-                            condition.conditionMethod = EditorGUI.TextField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Method", condition.conditionMethod);
+                            condition.methodName = EditorGUI.TextField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Method", condition.methodName);
                             rect.y += lineHeight + padding;
                             condition.callback = (UdonBehaviour)EditorGUI.ObjectField(new Rect(rect.x - space, rect.y, rect.width - 50, lineHeight), "Callback", condition.callback, typeof(UdonBehaviour), true);
                         }
@@ -257,21 +257,19 @@ namespace UdonTasks.Editor.Synced
         {
             SyncedTask inspector = (SyncedTask)target;
 
-            if (inspector.function == null) return;
+            if (inspector.functions == null) return;
 
-            for (int i = 0; i < inspector.function.Length; i++)
+            for (int i = 0; i < inspector.functions.Length; i++)
             {
                 foldout.Add(false);
             }
 
-            string[] md = inspector.methodNames;
+            string[] mn = inspector.methodNames;
             bool[] mc = inspector.manualConfirmation;
-            UdonBehaviour[] mb = inspector.methodBehaviors;
-            string[] cm = inspector.conditionMethods;
-            bool[] rum = inspector.repeatUntilMet;
             UdonBehaviour[] cb = inspector.callbacks;
+            TypeOfFunction[] func = inspector.functions;
+            bool[] rum = inspector.repeatUntilMet;
             int[] ws = inspector.waitForSeconds;
-            TypeOfFunction[] func = inspector.function;
 
             for (int i = 0; i < func.Length; i++)
             {
@@ -280,9 +278,9 @@ namespace UdonTasks.Editor.Synced
                     case TypeOfFunction.Task:
                         Task task = new Task();
                         task.i = i;
-                        task.methodName = md[i];
                         task.manualConfirmation = mc[i];
-                        task.methodBehavior = mb[i];
+                        task.methodName = mn[i];
+                        task.callback = cb[i];
                         elements.Add(task);
                         break;
                     case TypeOfFunction.WaitForSeconds:
@@ -294,8 +292,8 @@ namespace UdonTasks.Editor.Synced
                     case TypeOfFunction.Condition:
                         Condition condition = new Condition();
                         condition.i = i;
-                        condition.conditionMethod = cm[i];
                         condition.repeat = rum[i];
+                        condition.methodName = mn[i];
                         condition.callback = cb[i];
                         elements.Add(condition);
                         break;
@@ -309,15 +307,16 @@ namespace UdonTasks.Editor.Synced
             SyncedTask inspector = (SyncedTask)target;
             int length = elements.Count;
 
+            inspector.functions = new TypeOfFunction[length];
 
             inspector.methodNames = new string[length];
-            inspector.manualConfirmation = new bool[length];
-            inspector.methodBehaviors = new UdonBehaviour[length];
-            inspector.conditionMethods = new string[length];
-            inspector.repeatUntilMet = new bool[length];
             inspector.callbacks = new UdonBehaviour[length];
+
+            inspector.manualConfirmation = new bool[length];
+            inspector.repeatUntilMet = new bool[length];
+
             inspector.waitForSeconds = new int[length];
-            inspector.function = new TypeOfFunction[length];
+
 
             for (int i = 0; i < elements.Count; i++)
             {
@@ -329,8 +328,8 @@ namespace UdonTasks.Editor.Synced
                     {
                         inspector.manualConfirmation[task.i] = task.manualConfirmation;
                         inspector.methodNames[task.i] = task.methodName;
-                        inspector.methodBehaviors[task.i] = task.methodBehavior;
-                        inspector.function[task.i] = task.taskFunc;
+                        inspector.callbacks[task.i] = task.callback;
+                        inspector.functions[task.i] = task.taskFunc;
                     }
                 }
                 else if (element is Condition condition)
@@ -338,9 +337,9 @@ namespace UdonTasks.Editor.Synced
                     if (condition.i >= 0 && condition.i < length)
                     {
                         inspector.repeatUntilMet[condition.i] = condition.repeat;
-                        inspector.conditionMethods[condition.i] = condition.conditionMethod;
+                        inspector.methodNames[condition.i] = condition.methodName;
                         inspector.callbacks[condition.i] = condition.callback;
-                        inspector.function[condition.i] = condition.taskFunc;
+                        inspector.functions[condition.i] = condition.taskFunc;
                     }
                 }
                 else if (element is WaitForSeconds wait)
@@ -348,7 +347,7 @@ namespace UdonTasks.Editor.Synced
                     if (wait.i >= 0 && wait.i < length)
                     {
                         inspector.waitForSeconds[wait.i] = wait.waitForSeconds;
-                        inspector.function[wait.i] = wait.taskFunc;
+                        inspector.functions[wait.i] = wait.taskFunc;
                     }
                 }
             }

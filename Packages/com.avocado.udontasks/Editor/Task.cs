@@ -9,32 +9,35 @@ using VRC.Udon;
 [Serializable]
 public class Task : IBaseType
 {
-    public int i;
-    public string methodName;
-    public UdonBehaviour methodBehavior;
-    public bool manualConfirmation;
-
     public readonly TypeOfFunction taskFunc = TypeOfFunction.Task;
+
+    public int i;
+    public bool manualConfirmation;
+    public string methodName;
+    public UdonBehaviour callback;
 }
 
 [Serializable]
 public class Condition : IBaseType
 {
-    public int i;
-    public bool repeat;
-    public string conditionMethod;
-    public UdonBehaviour callback;
 
     public readonly TypeOfFunction taskFunc = TypeOfFunction.Condition;
+
+    public int i;
+    public bool repeat;
+    public string methodName;
+    public UdonBehaviour callback;
+
 
 }
 
 [Serializable]
 public class WaitForSeconds : IBaseType
 {
-    public int i;
-    public int waitForSeconds;
 
     public readonly TypeOfFunction taskFunc = TypeOfFunction.WaitForSeconds;
+
+    public int i;
+    public int waitForSeconds;
 }
 
